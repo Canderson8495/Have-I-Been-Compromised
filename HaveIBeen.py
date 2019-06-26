@@ -9,7 +9,12 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 gmail_user = 'projdeploy@gmail.com'
-gmail_password = 'Password Goes Here'
+gmail_password = 'YourPassword'
+#I could probably combine this with the main JSON file
+contactDict = {
+    "Account1ToBeChecked": "contactEmail1",
+    "Account2ToBeChecked": "contactEmail2"
+}
 usernames = ["Thrillechs@gmail.com","Cameron22123","Canderson8495@gmail.com","Erryial","anitaa0570@yahoo.com"]
 
 # First, we will open the file/create it if it doesn't exist
@@ -34,15 +39,18 @@ try:
     LastBreachCheckFile.close()
 except IOError:
     LastBreachCheck = open("lastCheck.json", "w+")
+    LastBreachCheck.write("[]")
     print("There was an issue opening the file. Please contact System Administrator")
     LastBreachCheck.close()
+    LastBreachCheckJson = []
 
 userBreachList = []
 #Now we want to parse the json
-for name in usernames:
+for name in contactDict:
     #We're constructing our own json list
     data = {}
     data['Name'] = name
+    data['Contact'] = contactDict.get(name)
     print(name)
 
     r = requests.get('https://haveibeenpwned.com/api/v2/breachedaccount/'+name+'?includeUnverified=true')
@@ -98,7 +106,7 @@ for old in LastBreachCheckJson:
                     print("Send out an email here")
                     text = message.as_string()
                     print(text)
-                    server.sendmail(gmail_user, "Thrillechs@gmail.com", text)
+                    server.sendmail(gmail_user, new['Contact'], text)
                     #A new breach has been found
                 #else:
                     #x was found within both breaches, nothing new
