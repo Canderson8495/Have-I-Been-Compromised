@@ -8,18 +8,20 @@ from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
+#Replace with your own email and password
 gmail_user = 'projdeploy@gmail.com'
 gmail_password = 'YourPassword'
-#I could probably combine this with the main JSON file
+#Put your your contact information in here, this information is saved to a .JSON file, but it's a bit obsolete there.
+#Technically, it could be taken out of the .JSON file, and the contactDict.get("Account1ToBeChecked") can 
+#be used at the server.sendmail() function.
 contactDict = {
     "Account1ToBeChecked": "contactEmail1",
     "Account2ToBeChecked": "contactEmail2"
 }
-usernames = ["Thrillechs@gmail.com","Cameron22123","Canderson8495@gmail.com","Erryial","anitaa0570@yahoo.com"]
-
-# First, we will open the file/create it if it doesn't exist
 
 
+
+#SMTP initialization and setups
 port = 465  # For SSL
 
 
@@ -29,7 +31,7 @@ context = ssl.create_default_context()
 
 server = smtplib.SMTP_SSL("smtp.gmail.com", port, context=context)
 server.login(gmail_user, gmail_password)
-
+# First, we will open the file/create it if it doesn't exist
 try:
     path.exists("lastCheck.json")
     #It exists, so we'll parse it here
@@ -89,11 +91,13 @@ print(userBreachList)
 #And there is most likely a better way to comparse these json objects
 for old in LastBreachCheckJson:
     for new in userBreachList:
+        #Could probably change this check to using something with Hashes.
         if old['Name'] == new['Name']:
             #Found a name match
             for x in new['Breaches']:
                 #Going through the new breach list, checking against old for x
                 if x not in old['Breaches']:
+                    #Email Generation
                     message = MIMEMultipart()
 
                     message["From"] = gmail_user
@@ -119,3 +123,5 @@ NewBreachCheckJson = json.dumps(userBreachList)
 LastBreachCheckWriter = open("lastCheck.json", "w+")
 
 LastBreachCheckWriter.write(NewBreachCheckJson)
+
+LastBreachCheckWriter.close()
